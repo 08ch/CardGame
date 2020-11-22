@@ -2,7 +2,7 @@ package dev.cal
 
 // Compares the two drawn cards and return which one wins the round, returns 'none' if draw
 fun compare(p1colour: String, p1num: String, p2colour: String, p2num: String): String {
-    var winner: = "comparison error"
+    var winner = "comparison error"
     // Compares numbers if colours are the same
     if (p1colour == p2colour) {
         if (p1num > p2num) {
