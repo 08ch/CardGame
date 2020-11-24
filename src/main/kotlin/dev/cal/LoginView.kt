@@ -1,5 +1,7 @@
 package dev.cal
+
 import javafx.beans.property.SimpleStringProperty
+import javafx.scene.control.Alert
 import javafx.scene.control.TabPane
 import tornadofx.*
 
@@ -14,7 +16,7 @@ class LoginView: View() {
  */
 
 // Login view
-class LoginView: View() {
+class LoginView : View() {
     private val controller: SubmitController by inject()
     private val username = SimpleStringProperty()
     private val password = SimpleStringProperty()
@@ -36,14 +38,21 @@ class LoginView: View() {
                     action {
                         if (username.value == "" || password.value == "") {
                             replaceWith<InvalidView>()
-                        }
-                        else {
+                        } else {
                             replaceWith<GameView>()
                         }
                         controller.submitUsername(username.value ?: "")
                         controller.submitPassword(password.value)
                         username.value = ""
                         password.value = ""
+                    }
+                }
+                button("Register") {
+                    hboxConstraints {
+                        marginRight = 20.0
+                    }
+                    action {
+                        replaceWith<RegisterView>()
                     }
                 }
                 button("Settings") {
@@ -58,10 +67,11 @@ class LoginView: View() {
 }
 
 // loginView submit controller
-class SubmitController: Controller() {
+class SubmitController : Controller() {
     fun submitUsername(inputValue: String) {
         println("Username = $inputValue")
     }
+
     fun submitPassword(inputValue: String) {
         println("Password = $inputValue")
     }
@@ -69,7 +79,7 @@ class SubmitController: Controller() {
 
 // Settings view
 
-class SettingsView: View() {
+class SettingsView : View() {
     override val root = tabpane {
         tabClosingPolicy = TabPane.TabClosingPolicy.UNAVAILABLE
         tab("Settings") {
@@ -86,7 +96,7 @@ class SettingsView: View() {
 }
 
 // Invalid view
-class InvalidView: View() {
+class InvalidView : View() {
     override val root = vbox {
         label("Incorrect login details")
         button("Go back") {
@@ -98,4 +108,48 @@ class InvalidView: View() {
     }
 }
 
-// Game view
+// Register new user
+class RegisterView : View() {
+    private val controller: RegisterUserController by inject()
+    private val newUsername = SimpleStringProperty()
+    private val newPassword = SimpleStringProperty()
+    override val root = form {
+        fieldset {
+            newUsername.value = ""
+            newPassword.value = ""
+            field("Pick a username") {
+                textfield(newUsername)
+            }
+            field("Pick a password") {
+                passwordfield(newPassword)
+            }
+            hbox {
+                button("Register") {
+                    hboxConstraints {
+                        marginRight = 20.0
+                    }
+                    action {
+                        if (newUsername.value.isNotEmpty() && newPassword.value.isNotEmpty()) {
+
+                            val success = controller.registerUser(newUsername.value, newPassword.value)
+                            if (success) {
+                                replaceWith<LoginView>()
+                                newUsername.value = ""
+                                newPassword.value = ""
+                            } else {
+                                alert(Alert.AlertType.ERROR, "Existing User", "A user with that username already exists", owner = currentWindow)
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+    }
+}
+
+class RegisterUserController : Controller() {
+    fun registerUser(username: String, password: String): Boolean {
+        return addUser(username, password)
+    }
+}
