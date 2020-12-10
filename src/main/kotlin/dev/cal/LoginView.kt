@@ -39,12 +39,13 @@ class LoginView : View() {
                         if (username.value == "" || password.value == "") {
                             replaceWith<InvalidView>()
                         } else {
+                            controller.submitUsername(username.value ?: "")
+                            controller.submitPassword(password.value)
+                            username.value = ""
+                            password.value = ""
                             replaceWith<GameView>()
                         }
-                        controller.submitUsername(username.value ?: "")
-                        controller.submitPassword(password.value)
-                        username.value = ""
-                        password.value = ""
+
                     }
                 }
                 button("Register") {
