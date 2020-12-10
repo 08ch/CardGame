@@ -5,6 +5,7 @@ import javafx.scene.control.Alert
 import javafx.scene.control.TabPane
 import tornadofx.*
 
+var currentUsername = ""
 
 /*
 class LoginView: View() {
@@ -37,13 +38,18 @@ class LoginView : View() {
                     }
                     action {
                         if (username.value == "" || password.value == "") {
-                            replaceWith<InvalidView>()
+                            showInvalidDetails(currentWindow)
                         } else {
-                            controller.submitUsername(username.value ?: "")
-                            controller.submitPassword(password.value)
+                            if (controller.submitDetails(username.value ?: "", password.value ?: "")) {
+                                currentUsername = username.value
+                                replaceWith<GameView>()
+                            } else {
+                                showInvalidDetails(currentWindow)
+                            }
+
                             username.value = ""
                             password.value = ""
-                            replaceWith<GameView>()
+
                         }
 
                     }
@@ -69,12 +75,9 @@ class LoginView : View() {
 
 // loginView submit controller
 class SubmitController : Controller() {
-    fun submitUsername(inputValue: String) {
-        println("Username = $inputValue")
-    }
-
-    fun submitPassword(inputValue: String) {
-        println("Password = $inputValue")
+    fun submitDetails(username: String, password: String): Boolean {
+        val user = getUser(username) ?: return false
+        return user[LoginsTable.password] == password
     }
 }
 
@@ -138,10 +141,23 @@ class RegisterView : View() {
                                 newUsername.value = ""
                                 newPassword.value = ""
                             } else {
-                                alert(Alert.AlertType.ERROR, "Existing User", "A user with that username already exists", owner = currentWindow)
+                                alert(
+                                    Alert.AlertType.ERROR,
+                                    "Existing User",
+                                    "A user with that username already exists",
+                                    owner = currentWindow
+                                )
                             }
                         }
 
+                    }
+                }
+                button("Back") {
+                    hboxConstraints {
+                        marginRight = 20.0
+                    }
+                    action {
+                        replaceWith<LoginView>()
                     }
                 }
             }
